@@ -16,6 +16,10 @@ module Delayed
             client.formation.update(ENV['APP_NAME'], 'workera', {'quantity' => 1}) if workers_needed_now > 1
             client.formation.update(ENV['APP_NAME'], 'workerb', {'quantity' => 1}) if workers_needed_now > 2
             client.formation.update(ENV['APP_NAME'], 'workerc', {'quantity' => 1}) if workers_needed_now > 3
+            client.formation.update(ENV['APP_NAME'], 'workerd', {'quantity' => 1}) if workers_needed_now > 4
+            client.formation.update(ENV['APP_NAME'], 'workere', {'quantity' => 1}) if workers_needed_now > 5
+            client.formation.update(ENV['APP_NAME'], 'workerf', {'quantity' => 1}) if workers_needed_now > 6
+            client.formation.update(ENV['APP_NAME'], 'workerg', {'quantity' => 1}) if workers_needed_now > 7
             @@mutex.synchronize do
               @workers = workers_needed_now
             end
@@ -31,6 +35,10 @@ module Delayed
             client.formation.update(ENV['APP_NAME'], 'workera', {'quantity' => 0}) if self.min_workers < 2
             client.formation.update(ENV['APP_NAME'], 'workerb', {'quantity' => 0}) if self.min_workers < 3
             client.formation.update(ENV['APP_NAME'], 'workerc', {'quantity' => 0}) if self.min_workers < 4
+            client.formation.update(ENV['APP_NAME'], 'workerd', {'quantity' => 0}) if self.min_workers < 5
+            client.formation.update(ENV['APP_NAME'], 'workere', {'quantity' => 0}) if self.min_workers < 6
+            client.formation.update(ENV['APP_NAME'], 'workerf', {'quantity' => 0}) if self.min_workers < 7
+            client.formation.update(ENV['APP_NAME'], 'workerg', {'quantity' => 0}) if self.min_workers < 8
             @@mutex.synchronize do
               @workers = self.min_workers
             end
@@ -42,7 +50,7 @@ module Delayed
           @@mutex.synchronize do
             return @workers ||= Rails.cache.fetch("workless-workers", :expires_in => 1.minutes, :race_condition_ttl => 10.seconds) do
               #client.get_ps(ENV['APP_NAME']).body.count { |p| p["process"] =~ /worker[abc]?\.\d?/ }
-              client.formation.list(ENV['APP_NAME']).each_with_object([]) { |p,a| a << p if p['type'] =~ /worker[abc]?/ }.map { |p| p['quantity'].to_i }.sum
+              client.formation.list(ENV['APP_NAME']).each_with_object([]) { |p,a| a << p if p['type'] =~ /worker[abcdefg]?/ }.map { |p| p['quantity'].to_i }.sum
             end
           end
         end
@@ -70,7 +78,7 @@ module Delayed
         end
 
         def self.min_workers
-          ENV['PROCESSES'].split(',').each_with_object([]) { |p,a| a << p if p =~ /worker[abc]?$/i }.size
+          ENV['PROCESSES'].split(',').each_with_object([]) { |p,a| a << p if p =~ /worker[abcdefg]?$/i }.size
         end
       end
     end
