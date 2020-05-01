@@ -16,7 +16,7 @@ module Delayed
             (0..workers_needed_now).each do |x|
               process = 'worker'
               case x
-                when 0 next
+                when 0 then next
                 when 2 then process += 'a'
                 when 3 then process += 'b'
                 when 4 then process += 'c'
