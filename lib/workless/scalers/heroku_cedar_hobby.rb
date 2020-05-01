@@ -16,7 +16,7 @@ module Delayed
             (0..workers_needed_now).each do |x|
               process = 'worker'
               case x
-                when 0 next next
+                when 0 next
                 when 2 then process += 'a'
                 when 3 then process += 'b'
                 when 4 then process += 'c'
@@ -29,7 +29,7 @@ module Delayed
                                'quantity' => 1}
             end
             command = {'updates' => sub_commands}
-            heroku.formation.batch_update(ENV['APP_NAME'], command) if sub_commands.present?
+            client.formation.batch_update(ENV['APP_NAME'], command) if sub_commands.present?
             if 1 == 0
               # old way replaced with batch....
               client.formation.update(ENV['APP_NAME'], 'worker', {'quantity' => 1}) if workers_needed_now > 0
