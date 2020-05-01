@@ -12,14 +12,35 @@ module Delayed
           if workers_needed_now > self.min_workers and self.workers < workers_needed_now
             #p1 = fork { client.post_ps_scale(ENV['APP_NAME'], 'worker', workers_needed_now) }
             #Process.detach(p1)
-            client.formation.update(ENV['APP_NAME'], 'worker', {'quantity' => 1}) if workers_needed_now > 0
-            client.formation.update(ENV['APP_NAME'], 'workera', {'quantity' => 1}) if workers_needed_now > 1
-            client.formation.update(ENV['APP_NAME'], 'workerb', {'quantity' => 1}) if workers_needed_now > 2
-            client.formation.update(ENV['APP_NAME'], 'workerc', {'quantity' => 1}) if workers_needed_now > 3
-            client.formation.update(ENV['APP_NAME'], 'workerd', {'quantity' => 1}) if workers_needed_now > 4
-            client.formation.update(ENV['APP_NAME'], 'workere', {'quantity' => 1}) if workers_needed_now > 5
-            client.formation.update(ENV['APP_NAME'], 'workerf', {'quantity' => 1}) if workers_needed_now > 6
-            client.formation.update(ENV['APP_NAME'], 'workerg', {'quantity' => 1}) if workers_needed_now > 7
+            sub_commands = []
+            (0..workers_needed_now).each do |x|
+              process = 'worker'
+              case x
+                when 0 next next
+                when 2 then process += 'a'
+                when 3 then process += 'b'
+                when 4 then process += 'c'
+                when 5 then process += 'd'
+                when 6 then process += 'e'
+                when 7 then process += 'f'
+                when 8 then process += 'g'
+              end
+              sub_commands << {'process' => process,
+                               'quantity' => 1}
+            end
+            command = {'updates' => sub_commands}
+            heroku.formation.batch_update(ENV['APP_NAME'], command) if sub_commands.present?
+            if 1 == 0
+              # old way replaced with batch....
+              client.formation.update(ENV['APP_NAME'], 'worker', {'quantity' => 1}) if workers_needed_now > 0
+              client.formation.update(ENV['APP_NAME'], 'workera', {'quantity' => 1}) if workers_needed_now > 1
+              client.formation.update(ENV['APP_NAME'], 'workerb', {'quantity' => 1}) if workers_needed_now > 2
+              client.formation.update(ENV['APP_NAME'], 'workerc', {'quantity' => 1}) if workers_needed_now > 3
+              client.formation.update(ENV['APP_NAME'], 'workerd', {'quantity' => 1}) if workers_needed_now > 4
+              client.formation.update(ENV['APP_NAME'], 'workere', {'quantity' => 1}) if workers_needed_now > 5
+              client.formation.update(ENV['APP_NAME'], 'workerf', {'quantity' => 1}) if workers_needed_now > 6
+              client.formation.update(ENV['APP_NAME'], 'workerg', {'quantity' => 1}) if workers_needed_now > 7
+            end
             @@mutex.synchronize do
               @workers = workers_needed_now
             end
