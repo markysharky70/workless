@@ -49,6 +49,7 @@ module Delayed
         end
 
         def self.down
+          return
           unless self.jobs.count > 0 or self.workers == self.min_workers
             #p1 = fork { client.post_ps_scale(ENV['APP_NAME'], 'worker', self.min_workers) }
             #Process.detach(p1)
